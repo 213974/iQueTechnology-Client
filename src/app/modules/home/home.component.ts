@@ -1,11 +1,12 @@
 // src/app/modules/home/home.component.ts
 import { Component, OnInit } from '@angular/core';
-import { trigger, state, style, transition, animate, keyframes } from '@angular/animations';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-home',
-  templateUrl: './home.html',
-  styleUrls: ['./home.css'],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
+  standalone: false, // Required for NgModule-based components in Angular v19+
   animations: [
     trigger('hero', [
       transition(':enter', [
@@ -61,24 +62,20 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     setInterval(() => {
       this.rotateTestimonials();
-    }, 5000); // Rotate every 5 seconds
+    }, 5000);
   }
 
   rotateTestimonials() {
     const nextIndex = (this.currentIndex + 1) % this.testimonials.length;
-    const prevIndex = (this.currentIndex - 1 + this.testimonials.length) % this.testimonials.length;
-
-    this.testimonials[this.currentIndex].state = 'left';
-    this.testimonials[nextIndex].state = 'center';
-    this.testimonials[prevIndex].state = 'right'; // Keep other cards to the right
-
-    // Make sure all non-visible cards are also in the 'right' state
-    this.testimonials.forEach((test, index) => {
-      if (index !== this.currentIndex && index !== nextIndex) {
-        test.state = 'right';
+    this.testimonials.forEach((testimonial, index) => {
+      if (index === this.currentIndex) {
+        testimonial.state = 'left';
+      } else if (index === nextIndex) {
+        testimonial.state = 'center';
+      } else {
+        testimonial.state = 'right';
       }
     });
-
     this.currentIndex = nextIndex;
   }
 }
