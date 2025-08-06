@@ -1,13 +1,26 @@
 // src/app/modules/home/home.component.ts
-import { Component, OnInit } from '@angular/core';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { trigger, transition, style, animate } from '@angular/animations';
+
+// Define a reusable animation for fading and sliding in from the sides
+const enterTransition = transition(':enter', [
+  style({ opacity: 0, transform: 'translateY(20px)' }),
+  animate('0.5s ease-in-out', style({ opacity: 1, transform: 'translateY(0)' })),
+]);
+const exitTransition = transition(':leave', [
+  animate('0.5s ease-in-out', style({ opacity: 0, transform: 'translateY(-20px)' }))
+]);
+
+const fadeInOut = trigger('fadeInOut', [enterTransition, exitTransition]);
+
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  standalone: false, // Required for NgModule-based components in Angular v19+
+  standalone: false,
   animations: [
+    // Keep hero and card animations from before
     trigger('hero', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(20px)' }),
@@ -20,62 +33,61 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
         animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ]),
-    trigger('testimonial', [
-      state('center', style({
-        transform: 'translateX(-50%) scale(1)',
-        opacity: 1,
-        zIndex: 2
-      })),
-      state('left', style({
-        transform: 'translateX(-110%) scale(0.8)',
-        opacity: 0.6,
-        zIndex: 1
-      })),
-      state('right', style({
-        transform: 'translateX(10%) scale(0.8)',
-        opacity: 0.6,
-        zIndex: 1
-      })),
-      transition('* => *', [
-        animate('0.5s ease-in-out')
-      ]),
-    ]),
+    // Use the new, cleaner testimonial animation
+    fadeInOut
   ]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  // --- Service data remains the same ---
   services = [
     { title: 'Managed Services', description: 'Are you tired of the old "Break/Fix" Model? We are proactive in servicing the needs of our clients. Our systems are fine tuned to alert us when something is not quite right, resolving issues before they become problems.', image: 'https://img1.wsimg.com/isteam/stock/D18lzNo/:/rs=w:365,h:365,cg:true,m/cr=w:365,h:365' },
     { title: 'Security', description: 'Cyber Crime is at an all time high. We offer the latest in advance security protection, from Gateway and Endpoint security to Mobile Device and Disaster Recovery solutions.', image: 'https://img1.wsimg.com/isteam/stock/817/:/rs=w:365,h:365,cg:true,m/cr=w:365,h:365' },
     { title: 'Cloud Computing', description: 'We are partnered with industry leaders in cloud services. Whether it\'s Office 365, Hosted Exchange, or Cloud Backup Solutions, we have the know how to support your business needs.', image: 'https://img1.wsimg.com/isteam/stock/QBzye43/:/rs=w:365,h:365,cg:true,m/cr=w:365,h:365' }
   ];
 
+  // --- Testimonial data simplified ---
   testimonials = [
-    { id: 1, quote: '"iQue Helped Design Our Fleet Service Environment, Network Security and Provided Tech Support to our Staff. They handle all of our IT needs."', name: 'J. Moore', company: 'Tech24', state: 'center' },
-    { id: 2, quote: '"They handle all of our IT needs from Email Management on Mobile and Office Devices to our Network Security and Backups."', name: 'T. Gray', company: 'Capitol', state: 'right' },
-    { id: 3, quote: '"The team is incredibly responsive and knowledgeable. They have become a true extension of our own department."', name: 'A. Davis', company: 'Innovate Corp', state: 'right' },
-    { id: 4, quote: '"Switching to iQue was the best decision we made for our IT infrastructure. Their proactive approach has saved us countless hours."', name: 'M. Chen', company: 'Logistics Pro', state: 'right' },
-    { id: 5, quote: '"Their expertise in security and compliance is second to none. We feel confident that our data is protected."', name: 'S. Rodriguez', company: 'Health Systems', state: 'right' }
+    { id: 1, quote: '"iQue Helped Design Our Fleet Service Environment, Network Security and Functionality While Maintaining the Day to Day Tech Support Role Post Initial Implementation of Our Virtual Environment as Well"', name: 'J. Moore', company: 'Tech24' },
+    { id: 2, quote: '"iQue Technology Designed our Network and Provided Tech Support to our Staff. They handle all of Our IT Needs From Email Management on Mobile and Office Devices to Our Network Security and Backups."', name: 'T. Gray', company: 'Capitol' }
   ];
 
-  private currentIndex = 0;
+  // --- New properties for carousel control ---
+  currentIndex = 0;
+  private intervalId: any;
 
   ngOnInit() {
-    setInterval(() => {
-      this.rotateTestimonials();
+    this.startCarousel();
+  }
+
+  ngOnDestroy() {
+    this.stopCarousel();
+  }
+
+  startCarousel() {
+    this.stopCarousel(); // Ensure no multiple intervals are running
+    this.intervalId = setInterval(() => {
+      this.next();
     }, 5000);
   }
 
-  rotateTestimonials() {
-    const nextIndex = (this.currentIndex + 1) % this.testimonials.length;
-    this.testimonials.forEach((testimonial, index) => {
-      if (index === this.currentIndex) {
-        testimonial.state = 'left';
-      } else if (index === nextIndex) {
-        testimonial.state = 'center';
-      } else {
-        testimonial.state = 'right';
-      }
-    });
-    this.currentIndex = nextIndex;
+  stopCarousel() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  select(index: number) {
+    this.currentIndex = index;
+    this.startCarousel(); // Restart timer when user interacts
+  }
+
+  next() {
+    this.currentIndex = (this.currentIndex + 1) % this.testimonials.length;
+    this.startCarousel();
+  }
+
+  prev() {
+    this.currentIndex = (this.currentIndex - 1 + this.testimonials.length) % this.testimonials.length;
+    this.startCarousel();
   }
 }

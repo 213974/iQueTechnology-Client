@@ -1,4 +1,4 @@
-<!-- src/app/modules/home/home.html -->
+<!-- src/app/modules/home/home.component.html -->
 <main>
   <!-- Hero Section -->
   <section class="hero-section">
@@ -13,27 +13,51 @@
     <h2 class="section-title">Experts <span>You Can Trust</span></h2>
     <p class="section-subtitle">From proactive maintenance to advanced security, our suite of services is designed to provide comprehensive IT peace of mind.</p>
     <div class="services-grid">
-      <div *ngFor="let service of services" class="service-card" @card>
-        <div class="card-image-container">
-          <img [src]="service.image" [alt]="service.title" />
+      @for (service of services; track service.title) {
+        <div class="service-card" @card>
+          <div class="card-image-container">
+            <img [src]="service.image" [alt]="service.title" />
+          </div>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description }}</p>
         </div>
-        <h3>{{ service.title }}</h3>
-        <p>{{ service.description }}</p>
-      </div>
+      }
     </div>
   </section>
 
   <!-- Testimonials Section -->
-  <section id="testimonials" class="page-section testimonials-section">
+  <section id="testimonials" class="page-section testimonials-section" (mouseenter)="stopCarousel()" (mouseleave)="startCarousel()">
     <h2 class="section-title">What Our <span>Clients Are Saying</span></h2>
-    <div class="testimonial-carousel-viewport">
-      <div *ngFor="let testimonial of testimonials" [@testimonial]="testimonial.state" class="testimonial-card">
-        <img src="https://img1.wsimg.com/isteam/stock/5694/:/rs=w:100,h:100,cg:true,m/cr=w:100,h:100" alt="Avatar" class="avatar"/>
-        <div class="stars">★★★★★</div>
-        <p class="quote">{{ testimonial.quote }}</p>
-        <div class="author">
-          <a href="#">{{ testimonial.name }}</a>, <span><a href="#">{{ testimonial.company }}</a></span>
-        </div>
+    <div class="testimonial-container">
+      <div class="testimonial-carousel-viewport">
+        <!-- The loop now only displays one card at a time -->
+        @for (testimonial of testimonials; track testimonial.id; let i = $index) {
+          @if (i === currentIndex) {
+            <div class="testimonial-card" @fadeInOut>
+              <img src="https://img1.wsimg.com/isteam/stock/5694/:/rs=w:100,h:100,cg:true,m/cr=w:100,h:100" alt="Avatar" class="avatar"/>
+              <div class="stars">★★★★★</div>
+              <p class="quote">{{ testimonial.quote }}</p>
+              <div class="author">
+                <a href="#">{{ testimonial.name }}</a>, <span><a href="#">{{ testimonial.company }}</a></span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Carousel Controls -->
+      <button class="carousel-control prev" (click)="prev()" aria-label="Previous testimonial">&lt;</button>
+      <button class="carousel-control next" (click)="next()" aria-label="Next testimonial">&gt;</button>
+
+      <!-- Carousel Indicators -->
+      <div class="carousel-indicators">
+        @for (testimonial of testimonials; track testimonial.id; let i = $index) {
+          <span
+            class="indicator"
+            [class.active]="i === currentIndex"
+            (click)="select(i)">
+          </span>
+        }
       </div>
     </div>
   </section>
