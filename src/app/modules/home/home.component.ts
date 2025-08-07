@@ -7,7 +7,11 @@ const enterTransition = transition(':enter', [
   style({ opacity: 0, transform: 'translateY(20px)' }),
   animate('0.5s ease-in-out', style({ opacity: 1, transform: 'translateY(0)' })),
 ]);
+
+// The ':leave' transition is modified to prevent overlap
 const exitTransition = transition(':leave', [
+  // This is the key change: Make the element absolute as it leaves
+  style({ position: 'absolute' }), 
   animate('0.5s ease-in-out', style({ opacity: 0, transform: 'translateY(-20px)' }))
 ]);
 
@@ -33,7 +37,7 @@ const fadeInOut = trigger('fadeInOut', [enterTransition, exitTransition]);
         animate('0.5s ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ]),
-    // Use the new, cleaner testimonial animation
+    // Use the updated testimonial animation
     fadeInOut
   ]
 })
