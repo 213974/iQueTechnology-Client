@@ -1,7 +1,7 @@
 // src/components/DropdownMenu.tsx
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 
@@ -12,14 +12,32 @@ interface DropdownMenuProps {
 
 const DropdownMenu = ({ title, children }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-    >
-      <button className="flex items-center gap-1 transition-colors hover:text-primary focus:outline-none focus:text-primary">
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={toggleDropdown}
+        className="flex items-center gap-1 transition-colors hover:text-primary focus:outline-none focus:text-primary"
+      >
         {title}
         <ChevronDown
           className={`h-4 w-4 transition-transform duration-200 ${
