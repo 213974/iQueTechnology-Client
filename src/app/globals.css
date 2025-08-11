@@ -1,0 +1,23 @@
+/* src/app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-background: #121212;
+  --color-background-light: #1e1e1e;
+  --color-primary: #a3c11a;
+  --color-text: #e0e0e0;
+  --color-text-muted: #888888;
+  --color-border: rgba(163, 193, 26, 0.2);
+  --font-sans: var(--font-inter);
+}
+
+@layer base {
+  body {
+    background-color: theme(colors.background);
+    color: theme(colors.text);
+    font-family: theme(fontFamily.sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+}
